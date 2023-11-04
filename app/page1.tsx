@@ -51,32 +51,64 @@ export default function CSVProcessor() {
 
   const handleGenerateProductList = (e: any) => {
     const productMapping = {} as any;
+
+    // attributeList içindeki "type" alanını kullanarak productMapping oluştur
     attributeList.forEach((attribute: any) => {
       const type = attribute.Type;
+
+      // Eğer productMapping içinde bu tip için bir dizi yoksa, yeni bir dizi oluştur
       if (!productMapping[type]) {
         productMapping[type] = [];
       }
+
+      // attribute'i diziye ekle
       productMapping[type].push(attribute);
     });
 
-    let totalRowCount = 0;
-    familyList.forEach((family: any) => {
-      let rowCount = 1;
-      Object.keys(family).forEach((familyKey) => {
-        if (
-          productMapping[familyKey] &&
-          family[familyKey].split(",").length > 1
-        ) {
-          rowCount = rowCount * family[familyKey].split(",").length;
+    // familyList içindeki header'ları productMapping ile eşleştirerek yeni bir ürün listesi oluştur
+    const productList = familyList.map((family: any, index) => {
+      let product = "";
+      let indProduct = [] as any;
+
+      let multipleAttributes = {} as any;
+      Object.keys(family).forEach((familyAttribustes) => {
+        debugger;
+
+        if (productMapping[familyAttribustes]) {
+          if (family[familyAttribustes]) {
+            if (family[familyAttribustes].includes(",")) {
+              multipleAttributes[familyAttribustes] = family[familyAttribustes];
+              debugger;
+              // family[familyAttribustes].split(",").forEach((item: any) => {
+              //   product = product + "-" + item;
+              // });
+            }
+          }
+          if (multipleAttributes[familyAttribustes]) {
+            Object.keys(multipleAttributes[familyAttribustes]).forEach(
+              (cell: any) => {
+                let LastIndProduct = "";
+                family[familyAttribustes].split(",").forEach((item: any) => {
+                  let initialProduct = product;
+                  indProduct.push(product + "-" + item);
+                  product = initialProduct;
+                  LastIndProduct = indProduct;
+                });
+                LastIndProduct;
+                debugger;
+              }
+            );
+          } else {
+            product = product + "-" + family[familyAttribustes];
+          }
         }
       });
-      totalRowCount = totalRowCount + rowCount;
+      return product;
     });
-    console.log(totalRowCount);
 
-    let products = Array(totalRowCount).fill("");
+    setProductList(productList);
 
-    setProductList(products);
+    console.log("Yeni Ürün Listesi:", productList);
   };
 
   return (
