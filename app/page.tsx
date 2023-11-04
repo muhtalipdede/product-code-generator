@@ -1,9 +1,9 @@
 "use client";
-import React, { useState } from "react";
-import * as CSVParser from "papaparse"; // CSV işleme kütüphanesi
+import React, { useEffect, useState } from "react";
+import * as CSVParser from "papaparse";
 
 export default function CSVProcessor() {
-  const [familyList, setFamilyList] = useState([]); // CSV verilerini depolamak için state
+  const [familyList, setFamilyList] = useState([]);
   const [attributeList, setAttributeList] = useState([]);
   const [productList, setProductList] = useState<string[]>([]);
 
@@ -17,7 +17,7 @@ export default function CSVProcessor() {
         CSVParser.parse(csvText, {
           header: true,
           complete: (results: any) => {
-            setFamilyList(results.data); // Verileri state'e kaydet
+            setFamilyList(results.data);
           },
           error: (error: any) => {
             console.error("CSV işleme hatası:", error);
@@ -34,11 +34,10 @@ export default function CSVProcessor() {
       const reader = new FileReader();
       reader.onload = (event: any) => {
         const csvText = event.target.result;
-        // CSV'yi işle
         CSVParser.parse(csvText, {
           header: true,
           complete: (results: any) => {
-            setAttributeList(results.data); // Verileri state'e kaydet
+            setAttributeList(results.data);
           },
           error: (error: any) => {
             console.error("CSV işleme hatası:", error);
@@ -72,85 +71,161 @@ export default function CSVProcessor() {
       });
       totalRowCount = totalRowCount + rowCount;
     });
-    console.log(totalRowCount);
 
-    let products = Array(totalRowCount).fill("");
+    let products = [] as any[];
+
+    let index = 0;
+    familyList.forEach((family: any) => {
+      let rowCount = 1;
+      Object.keys(family).forEach((familyKey) => {
+        if (
+          productMapping[familyKey] &&
+          family[familyKey].split(",").length > 1
+        ) {
+          rowCount = rowCount * family[familyKey].split(",").length;
+        }
+      });
+
+      for (let i = 0; i < rowCount; i++) {
+        let updatedFamily = { ...family };
+
+        Object.keys(family).forEach((familyKey) => {
+          if (
+            productMapping[familyKey] &&
+            family[familyKey].split(",").length > 1
+          ) {
+            let multipleAttributes = family[familyKey].split(",");
+            updatedFamily[familyKey] = multipleAttributes[i];
+
+            multipleAttributes.splice(i, 1);
+          }
+        });
+
+        updatedFamily["Code"] = "";
+        Object.keys(updatedFamily).forEach((key) => {
+          if (productMapping[key]) {
+            if (updatedFamily["Code"] == "") {
+              updatedFamily["Code"] = updatedFamily[key];
+            } else if (updatedFamily[key]) {
+              updatedFamily["Code"] = updatedFamily["Code"] + "-" + updatedFamily[key];
+            }
+          }
+        })
+        products.push(updatedFamily);
+      }
+    })
 
     setProductList(products);
   };
 
+  const exportCSV = (e: any) => {
+    const csvContent = "data:text/csv;charset=utf-8," + productList.map((row: any) => Object.values(row).join(",")).join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "products.csv");
+    document.body.appendChild(link);
+    link.click();
+  }
+
   return (
-    <div>
-      <input
-        type="file"
-        onChange={handleFamilyList}
-        accept=".csv"
-        placeholder="Add Family List"
-      />
-      <input
-        type="file"
-        onChange={handleAttributeList}
-        accept=".csv"
-        placeholder="Add Attribute List"
-      />
-      <table>
-        <thead>
-          <tr>
-            {familyList.length > 0 &&
-              Object.keys(familyList[0]).map((key) => <th key={key}>{key}</th>)}
-          </tr>
-        </thead>
-        <tbody>
-          {familyList.map((row, index) => (
-            <tr key={index}>
-              {Object.values(row).map((value: any, index) => (
-                <td key={index}>{value}</td>
+    <div className="container mx-auto p-4">
+      <h1 className="text-3xl font-bold mb-4">CSV Processor</h1>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-4">
+          <h2 className="text-xl font-bold">Upload Files</h2>
+          <div className="flex flex-col gap-2">
+            <label className="text-lg font-bold">Family List</label>
+            <input
+              type="file"
+              onChange={handleFamilyList}
+              accept=".csv"
+              className="file-input"
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="text-lg font-bold">Attribute List</label>
+            <input
+              type="file"
+              onChange={handleAttributeList}
+              accept=".csv"
+              className="file-input"
+            />
+          </div>
+        </div>
+
+        <button onClick={handleGenerateProductList} className="button primary">
+          Generate Product List
+        </button>
+        <button onClick={exportCSV} className="button secondary">
+          Export CSV
+        </button>
+
+        {familyList.length > 0 && (
+          <table className="table">
+            <thead>
+              <tr>
+                {Object.keys(familyList[0]).map((key) => (
+                  <th key={key}>{key}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {familyList.map((row, index) => (
+                <tr key={index}>
+                  {Object.values(row).map((value: any, index) => (
+                    <td key={index}>{value}</td>
+                  ))}
+                </tr>
               ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <table>
-        <thead>
-          <tr>
-            {attributeList.length > 0 &&
-              Object.keys(attributeList[0]).map((key) => (
-                <th key={key}>{key}</th>
+            </tbody>
+          </table>
+        )}
+
+        {attributeList.length > 0 && (
+          <table className="table">
+            <thead>
+              <tr>
+                {Object.keys(attributeList[0]).map((key) => (
+                  <th key={key}>{key}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {attributeList.map((row, index) => (
+                <tr key={index}>
+                  {Object.values(row).map((value: any, index) => (
+                    <td key={index}>{value}</td>
+                  ))}
+                </tr>
               ))}
-          </tr>
-        </thead>
-        <tbody>
-          {attributeList.map((row, index) => (
-            <tr key={index}>
-              {Object.values(row).map((value: any, index) => (
-                <td key={index}>{value}</td>
+            </tbody>
+          </table>
+        )}
+
+        {productList.length > 0 && (
+          <table className="table">
+            <thead>
+              <tr>
+                {Object.keys(productList[0]).map((key) => (
+                  <th key={key}>{key}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {productList.map((row, index) => (
+                <tr key={index}>
+                  {Object.values(row).map((value, index) => (
+                    <td key={index}>{value}</td>
+                  ))}
+                </tr>
               ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <table>
-        <thead>
-          <tr>
-            {productList.length > 0 &&
-              Object.keys(productList[0]).map((key) => (
-                <th key={key}>{key}</th>
-              ))}
-          </tr>
-        </thead>
-        <tbody>
-          {productList.map((row, index) => (
-            <tr key={index}>
-              {Object.values(row).map((value: any, index) => (
-                <td key={index}>{value}</td>
-              ))}
-            </tr>
-          ))}
-        </tbody>
-      </table>
-      <button name="Generate" onClick={handleGenerateProductList}>
-        Generate Product List
-      </button>
+            </tbody>
+          </table>
+        )}
+
+
+      </div>
     </div>
   );
 }
