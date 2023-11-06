@@ -15,6 +15,7 @@
     "react-dom": "^18"
   },
   "devDependencies": {
+    "@flydotio/dockerfile": "^0.4.10",
     "@types/node": "^20",
     "@types/papaparse": "^5.3.10",
     "@types/react": "^18",
