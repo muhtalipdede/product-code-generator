@@ -1,5 +1,5 @@
 Reference,Name,Type
-AL,ALPST,01- Series
+AL,ALPS,01- Series
 DE,DENALI,01- Series
 DS,DELTA STAR,01- Series
 AL,Aluminum,02- Material
@@ -10,15 +10,15 @@ ID,Integral Driver,04- Driver
 IV,Integral Driver - Low Voltage,04- Driver
 RD,Remote Driver,04- Driver
 RO,Round,05A- Version
-SQ,Squre,05A- Version
+SQ,Square,05A- Version
 CA,Cap A - 45°,05C- Style
 CB,Cap B - 90°,05C- Style
 CC,Cap C - Flush,05C- Style
 CD,Cap D - 45° Less Weephole,05C- Style
 CE,Cap E - 90° Less Weephole,05C- Style
 CF,Cap F - 90° with Flush,05C- Style
-LAP38,Lamp PAR38,06- Light Source
-LCT,LED Color Tuning,06- Light Source
-LCB,LED COB,06- Light Source
-LED,LED,06- Light Source
-LAM16,Lamp MR16 Gu5.3,06- Light Source
+LAP38,Lamp PAR38,06- Light source
+LCT,LED Color Tuning,06- Light source
+LCB,LED COB,06- Light source
+LED,LED,06- Light source
+LAM16,Lamp MR16 Gu5.3,06- Light source

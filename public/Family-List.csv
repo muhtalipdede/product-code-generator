@@ -1,6 +1,5 @@
-Category Reference,Category name,01- Series,02- Material,03- Category,04- Driver,05A- Version,05B- Height&Size,05C- Style,06- Light Source
-AL-333,ALPS,ALX,AL,FL,ID,,,,LAP38
+Category Reference,Category name,01- Series,02- Material,03- Category,04- Driver,05A- Version,05B- Height&Size,05C- Style,06- Light source
+AL-333,ALPS,AL,AL,FL,ID,,,,LAP38
 DE-1231,DENALI - Remote - Color Tuning,DE,AL,FL,RD,,,"CA,CB,CC,CD,CE",LCT
 DS-1392,DELTA STAR - Square - LED,DS,"AL,BR,SS",FL,IV,SQ,,"CA,CB,CC,CD,CE,CF",LED
 DE-1245,DENALI - Integral - LED COB,AL,AL,FL,ID,,,"CA,CB,CC,CD,CE",LCB
-EN-1235,EMRE - Hödödö,EN,"AL,BR,SS",FL,IV,SQ,,"CA,CB,CC,CD,CE,CF",LED

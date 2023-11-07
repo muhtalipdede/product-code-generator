@@ -1,11 +1,14 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import * as CSVParser from "papaparse";
+import Select from "react-dropdown-select";
 
 export default function CSVProcessor() {
   const [familyList, setFamilyList] = useState([]);
+  const [filterOptions, setFilterOptions] = useState({}) as any;
   const [attributeList, setAttributeList] = useState([]);
   const [productList, setProductList] = useState<string[]>([]);
+  const [filteredProductList, setFilteredProductList] = useState<string[]>([]);
   const [errorList, setErrorList] = useState<string[]>([]);
 
   const handleFamilyListDownloadSample = (e: any) => {
@@ -65,6 +68,22 @@ export default function CSVProcessor() {
     }
   };
 
+  const seperateMultipleAttributes = (family: any) => {
+    const multipleAttributes = {} as any;
+    Object.keys(family).forEach((familyKey) => {
+      if (
+        family[familyKey] &&
+        family[familyKey].split(",").length > 1
+      ) {
+        multipleAttributes[familyKey] = multipleAttributes[familyKey] || [];
+        family[familyKey].split(",").forEach((attribute: any) => {
+          multipleAttributes[familyKey].push(attribute);
+        });
+      }
+    })
+    return multipleAttributes
+  }
+
   const handleGenerateProductList = (e: any) => {
     if (familyList.length === 0 || attributeList.length === 0) {
       setErrorList(["Family list or attribute list is empty"]);
@@ -95,7 +114,6 @@ export default function CSVProcessor() {
 
     let products = [] as any[];
 
-    let index = 0;
     let tempErrorList = [] as any[];
     familyList.forEach((family: any) => {
       let rowCount = 1;
@@ -111,18 +129,14 @@ export default function CSVProcessor() {
       for (let i = 0; i < rowCount; i++) {
         let updatedFamily = { "Product Reference": "", "Product Name": family["Category Name"], ...family };
 
-        Object.keys(family).forEach((familyKey) => {
-          if (
-            productMapping[familyKey] &&
-            family[familyKey].split(",").length > 1
-          ) {
-            let multipleAttributes = family[familyKey].split(",");
-            updatedFamily[familyKey] = multipleAttributes[i];
+        let multipleAttributes = seperateMultipleAttributes(updatedFamily);
 
-            multipleAttributes.splice(i, 1);
+        Object.keys(multipleAttributes).forEach((key) => {
+          if (multipleAttributes[key].length > 0) {
+            updatedFamily[key] = multipleAttributes[key][i % multipleAttributes[key].length];
           }
-        });
 
+        })
         Object.keys(updatedFamily).forEach((key) => {
           if (productMapping[key]) {
             if (attributeList.filter(
@@ -134,22 +148,22 @@ export default function CSVProcessor() {
               updatedFamily["Product Reference"] = updatedFamily[key];
               if (attributeList.find(
                 (attribute: any) => attribute.Reference === updatedFamily[key] &&
-                attribute.Type === key
+                  attribute.Type === key
               )) {
                 updatedFamily["Product Name"] = (attributeList.find(
                   (attribute: any) => attribute.Reference === updatedFamily[key] &&
-                  attribute.Type === key
+                    attribute.Type === key
                 ) as any).Name;
               }
             } else if (updatedFamily[key]) {
               updatedFamily["Product Reference"] = updatedFamily["Product Reference"] + "-" + updatedFamily[key];
               if (attributeList.find(
                 (attribute: any) => attribute.Reference === updatedFamily[key] &&
-                attribute.Type === key
+                  attribute.Type === key
               )) {
                 updatedFamily["Product Name"] = updatedFamily["Product Name"] + " - " + (attributeList.find(
                   (attribute: any) => attribute.Reference === updatedFamily[key] &&
-                  attribute.Type === key
+                    attribute.Type === key
                 ) as any).Name;
               }
             }
@@ -167,10 +181,45 @@ export default function CSVProcessor() {
         return acc;
       }, []);
       setErrorList(uniqueErrorList);
+    } else {
+      setErrorList([]);
     }
 
     setProductList(products);
   };
+
+  const handleProductMappingChange = (value: any) => {
+    value.forEach((element: any) => {
+      debugger
+      if (!filterOptions[element.value.split(",")[0]])
+        filterOptions[element.value.split(",")[0]] = [];
+      filterOptions[element.value.split(",")[0]].push(element.value.split(",")[1])
+      setFilterOptions({ ...filterOptions });
+    });
+  }
+
+  const filterProducts = (products: any, key: any, filters: any) => {
+    console.log(filters)
+    return products.filter((product: any) => {
+      return filters.every((filter : any) => {
+        console.log("--------")
+        console.log(product[key])
+        console.log("ccccccc")
+        console.log(filter)
+        return product[key] === filter
+      });
+    });
+  };
+
+  useEffect(() => {
+    let filteredProducts = productList;
+    Object.keys(filterOptions).forEach((key) => {
+      filteredProducts = filterProducts(filteredProducts, key, filterOptions[key]);
+      debugger
+
+    })
+    setFilteredProductList(filteredProducts);
+  }, [filterOptions, productList]);
 
   const exportCSV = (e: any) => {
     if (productList.length === 0) {
@@ -250,6 +299,29 @@ export default function CSVProcessor() {
           <table className="table min-w-full divide-y divide-gray-200 border border-gray-200 rounded shadow bg-white border-collapse">
             <thead className="bg-gray-50">
               <tr className="border-b border-gray-200">
+                {Object.keys(productList[0]).map((key: any) => (
+                  <th key={key} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <Select options={productList
+                    .reduce((acc: any, product: any) => {
+                      if (!acc.includes(product[key])) {
+                        acc.push(product[key]);
+                      }
+                      return acc;
+                    }, [])
+                    .map((product: any) => {
+                      return {
+                        label: product,
+                        value: key + "," + product
+                      }
+                    })}
+                      onChange={handleProductMappingChange}
+                      values={filterOptions[key]}
+                      multi={true}
+                    />
+                  </th>
+                ))}
+              </tr>
+              <tr className="border-b border-gray-200">
                 {Object.keys(productList[0]).map((key) => (
                   <th key={key} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                     {key}
@@ -258,7 +330,16 @@ export default function CSVProcessor() {
               </tr>
             </thead>
             <tbody>
-              {productList.map((row, index) => (
+              {filteredProductList.length}
+              {filteredProductList.length > 0 ? filteredProductList.map((row, index) => (
+                <tr key={index} className="border-b border-gray-200">
+                  {Object.values(row).map((value, index) => (
+                    <td key={index} className="px-6 py-4 whitespace-nowrap">
+                      {value}
+                    </td>
+                  ))}
+                </tr>
+              )) : productList.map((row, index) => (
                 <tr key={index} className="border-b border-gray-200">
                   {Object.values(row).map((value, index) => (
                     <td key={index} className="px-6 py-4 whitespace-nowrap">

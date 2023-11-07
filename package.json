@@ -9,10 +9,13 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "i": "^0.3.7",
     "next": "14.0.1",
+    "npm": "^10.2.3",
     "papaparse": "^5.4.1",
     "react": "^18",
-    "react-dom": "^18"
+    "react-dom": "^18",
+    "react-dropdown-select": "^4.10.0"
   },
   "devDependencies": {
     "@flydotio/dockerfile": "^0.4.10",
