@@ -249,14 +249,6 @@ export default function CSVProcessor() {
 
   return (
     <main>
-      <div className="mx-auto max-w-7xl py-6 px-4 sm:px-6 lg:px-8">
-        <h1 className="text-3xl font-bold text-gray-900">
-          Product Code Generator
-        </h1>
-        <p className="text-sm text-gray-500">
-          Generate product codes based on family list and attribute list
-        </p>
-      </div>
       <div className="flex flex-row gap-4 px-4 py-6 mx-auto max-w-7xl sm:px-6 lg:px-8 bg-gray-100 rounded-lg shadow-lg p-4">
         <div className="flex flex-col gap-2">
           <label className="text-lg font-bold">Family List</label>
@@ -286,6 +278,23 @@ export default function CSVProcessor() {
             <button className="text-blue-500" onClick={handleAttributeListDownloadSample}>
               Download sample
             </button>
+          </p>
+        </div>
+        <div className="mx-auto max-w-7xl py-6 px-4 sm:px-6 lg:px-8">
+          <h1 className="text-3xl font-bold text-gray-900">
+            Product Code Generator
+          </h1>
+          <p className="text-sm text-gray-500">
+            Generate product codes based on family list and attribute list
+          </p>
+          <p className="text-sm text-gray-500">
+            Select the family list and attribute list files to generate the product list
+          </p>
+          <p className="text-sm text-gray-500">
+            If you have a question or need help, please contact us at{" "}
+            <a href="mailto:muhtalipdede@gmail.com" className="text-blue-500">
+              muhtalipdede@gmail.com
+            </a>
           </p>
         </div>
       </div>
