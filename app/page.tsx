@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import * as CSVParser from "papaparse";
 import Select from "react-dropdown-select";
 import { checkDuplicateProductCodes, getDuplicateProductCodes } from "@/utils/product";
+import { downloadCsvWithLink } from "@/utils/csv";
 
 export default function CSVProcessor() {
   const [familyList, setFamilyList] = useState([]);
@@ -17,19 +18,11 @@ export default function CSVProcessor() {
   const [loading, setLoading] = useState<boolean>(false);
 
   const handleFamilyListDownloadSample = (e: any) => {
-    const link = document.createElement("a");
-    link.href = "/Family-List.csv";
-    link.download = "Family-List.csv";
-    document.body.appendChild(link);
-    link.click();
+    downloadCsvWithLink("/Family-List.csv", "Family-List.csv");
   }
 
   const handleAttributeListDownloadSample = (e: any) => {
-    const link = document.createElement("a");
-    link.href = "/List-Attributes.csv";
-    link.download = "List-Attributes.csv";
-    document.body.appendChild(link);
-    link.click();
+    downloadCsvWithLink("/List-Attributes.csv", "List-Attributes.csv");
   }
 
   const handleFamilyList = (e: any) => {
