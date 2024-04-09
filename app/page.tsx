@@ -155,18 +155,26 @@ export default function CSVProcessor() {
   }
 
   const handleShowDuplicateProductCodes = async (e: any) => {
-    const result = await fetch("/api/duplicate-product-codes", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        products: productList,
-      }),
-    });
-    const data = await result.json();
-    setDuplicateProductCodes(data);
-    setShowDuplicateProductCodesModal(true);
+    setLoading(true);
+    try {
+      const result = await fetch("/api/duplicate-product-codes", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          familyList: familyList,
+          attributeList: attributeList,
+        }),
+      });
+      const data = await result.json();
+      setDuplicateProductCodes(data);
+      setShowDuplicateProductCodesModal(true);
+    } catch (error) {
+      setErrorList(["Error showing duplicate product codes"]);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -245,7 +253,7 @@ export default function CSVProcessor() {
       </div>
       <div className="flex flex-row gap-4 px-4 py-6 mx-auto max-w-7xl sm:px-6 lg:px-8 bg-gray-100 rounded-lg shadow-lg p-4 overflow-x-auto">
         {productList.length > 0 && (
-          <table className="table min-w-full divide-y divide-gray-200 border border-gray-200 rounded shadow bg-white border-collapse">
+          <table className="table min-w-full divide-y divide-gray-200 border border-gray-200 rounded shadow bg-white border-collapse text-xs">
             <thead className="bg-gray-50">
               <tr className="border-b border-gray-200">
                 {Object.keys(productList[0]).map((key: any) => (
