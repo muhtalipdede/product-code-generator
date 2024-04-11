@@ -154,6 +154,34 @@ export default function CSVProcessor() {
     link.click();
   }
 
+  const exportDuplicateProductCodes = async (e: any) => {
+    setLoading(true);
+    setProductList([]);
+    try {
+      const result = await fetch("/api/duplicate-product-codes/csv", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          familyList: familyList,
+          attributeList: attributeList,
+        }),
+      });
+      const blob = await result.blob();
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'duplicate-product-codes.csv';
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      setErrorList(["Error exporting duplicate product codes"]);
+    } finally {
+      setLoading(false);
+    }
+  }
+
   const handleShowDuplicateProductCodes = async (e: any) => {
     setLoading(true);
     try {
@@ -247,9 +275,12 @@ export default function CSVProcessor() {
         <button onClick={handleClearAllFilters} className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
           Clear Filters
         </button>
-        {hasDuplicateProductCodes && <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" onClick={handleShowDuplicateProductCodes}>
+        <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" onClick={handleShowDuplicateProductCodes}>
           Show Duplicate Product Codes
-        </button>}
+        </button>
+        <button className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded" onClick={exportDuplicateProductCodes}>
+          Export Duplicate Product Codes
+        </button>
       </div>
       <div className="flex flex-row gap-4 px-4 py-6 mx-auto sm:px-6 lg:px-8 p-4 overflow-x-auto">
         {productList.length > 0 && (

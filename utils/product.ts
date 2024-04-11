@@ -1,10 +1,20 @@
-export const checkDuplicateProductCodes = (products: any[]): boolean => {
-    const productCodes = products.map((product) => product.code);
-    return new Set(productCodes).size !== productCodes.length;
+export const checkDuplicateProductCodes = (productCodes: string[]): boolean => {
+    const productCodesSet = new Set<string>(productCodes);
+    return productCodes.length !== productCodesSet.size;
 }
 
-export const getDuplicateProductCodes = (products: any[]): string[] => {
-    const productCodes = products.map((product) => product['Product Reference']);
-    const productCodesSet = new Set(productCodes);
-    return productCodes.filter((code) => productCodesSet.has(code));
+export const getDuplicateProductCodes = (productCodes: string[]): string[] => {
+    let duplicates = [] as string[];
+    let uniqueProductCodes = [] as string[];
+    for (const productCode of productCodes) {
+        if (uniqueProductCodes.includes(productCode)) {
+            duplicates.push(productCode);
+        } else {
+            uniqueProductCodes.push(productCode);
+        }
+    }
+
+    console.log(duplicates);
+
+    return duplicates;
 }

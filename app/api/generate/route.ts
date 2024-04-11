@@ -108,7 +108,8 @@ export async function POST(request: Request) {
         errorList = [];
     }
 
-    if (checkDuplicateProductCodes(products.map((product) => product["Product Reference"]))) {
+    const productReferenceList = products.map((product) => product["Product Reference"]);
+    if (checkDuplicateProductCodes(productReferenceList)) {
         errorList.push("Duplicate Product Codes found");
         errorType = 'duplicate-product-code-error'
     }

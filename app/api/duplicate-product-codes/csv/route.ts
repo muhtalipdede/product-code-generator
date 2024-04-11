@@ -14,13 +14,13 @@ export async function POST(request: Request) {
         },
         body: JSON.stringify({ attributeList, familyList }),
     }).then((response) => response.json());
-
     const productCodes = data.products.map((product: any) => product["Product Reference"]);
     const result = getDuplicateProductCodes(productCodes);
 
-    return new Response(JSON.stringify(result), {
-        headers: {
-            'content-type': 'application/json',
-        },
-    });
+    const headers = new Headers();
+    headers.set('Content-Type', 'text/csv');
+    headers.set('Content-Disposition', 'attachment; filename="duplicate-product-codes.csv"');
+
+    const csv = result.join('\n');
+    return new Response(csv, { status: 200, headers });
 }
