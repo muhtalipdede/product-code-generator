@@ -14,7 +14,5 @@ export const getDuplicateProductCodes = (productCodes: string[]): string[] => {
         }
     }
 
-    console.log(duplicates);
-
     return duplicates;
 }
