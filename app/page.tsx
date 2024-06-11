@@ -11,6 +11,7 @@ export default function CSVProcessor() {
   const [attributeList, setAttributeList] = useState([]);
   const [productList, setProductList] = useState<string[]>([]);
   const [filteredProductList, setFilteredProductList] = useState<string[]>([]);
+  const [infoList, setInfoList] = useState<string[]>([]);
   const [errorList, setErrorList] = useState<string[]>([]);
   const [duplicateProductCodes, setDuplicateProductCodes] = useState<string[]>([]);
   const [hasDuplicateProductCodes, setHasDuplicateProductCodes] = useState<boolean>(false);
@@ -169,6 +170,10 @@ export default function CSVProcessor() {
         }),
       });
       const blob = await result.blob();
+      if (blob.size === 0) {
+        setInfoList(["No duplicate product codes found"]);
+        return;
+      }
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -196,8 +201,14 @@ export default function CSVProcessor() {
         }),
       });
       const data = await result.json();
-      setDuplicateProductCodes(data);
-      setShowDuplicateProductCodesModal(true);
+      if (data.length === 0) {
+        setInfoList(["No duplicate product codes found"]);
+        return;
+      }
+      else {
+        setDuplicateProductCodes(data);
+        setShowDuplicateProductCodesModal(true);
+      }
     } catch (error) {
       setErrorList(["Error showing duplicate product codes"]);
     } finally {
@@ -261,6 +272,14 @@ export default function CSVProcessor() {
         {(
           errorList.map((error: any, index: any) => (
             <p className="text-red-500" key={index}>{error}</p>
+          ))
+        )}
+      </div>}
+
+      {infoList.length > 0 && <div className="flex flex-col gap-4 px-4 py-6 mx-auto sm:px-6 lg:px-8 bg-blue-100 p-4">
+        {(
+          infoList.map((info: any, index: any) => (
+            <p className="text-blue-500" key={index}>{info}</p>
           ))
         )}
       </div>}
@@ -372,7 +391,7 @@ export default function CSVProcessor() {
           </div>
         )}
       </div>}
-      <Loading loading={loading} />
+      {loading && <Loading loading={loading} />}
     </main>
   );
 }
