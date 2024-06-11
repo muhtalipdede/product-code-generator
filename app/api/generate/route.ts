@@ -1,5 +1,6 @@
 import { checkDuplicateProductCodes } from "@/utils/product";
 
+export const maxDuration = 60;
 export const dynamic = 'force-dynamic';
 
 const seperateMultipleAttributes = (family: any) => {
